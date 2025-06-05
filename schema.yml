@@ -1,0 +1,290 @@
+openapi: 3.0.3
+info:
+  title: Transaction API
+  version: 1.0.0
+  description: Предоставляет функционал обработки транзакций и работы со счетами пользователей
+paths:
+  /api/v1/transactions/deposit/:
+    post:
+      operationId: v1_transactions_deposit_create
+      description: |-
+        Принимает POST-запрос клиента.
+
+        Вызывает метод обработки POST-запроса, выполняет проверку на соответствие типа исполняемой операции и эндпоинта, возвращает объект Response.
+
+        Args:
+            request (Request): POST-запрос клиента.
+
+        Returns:
+            Response: ответ сервера на запрос клиента.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Transaction'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Transaction'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Transaction'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+          description: ''
+  /api/v1/transactions/transfer/:
+    post:
+      operationId: v1_transactions_transfer_create
+      description: |-
+        Принимает POST-запрос клиента.
+
+        Вызывает метод обработки POST-запроса, выполняет проверку на соответствие типа исполняемой операции и эндпоинта, возвращает объект Response.
+
+        Args:
+            request (Request): POST-запрос клиента.
+
+        Returns:
+            Response: ответ сервера на запрос клиента.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Transaction'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Transaction'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Transaction'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+          description: ''
+  /api/v1/transactions/withdrawal/:
+    post:
+      operationId: v1_transactions_withdrawal_create
+      description: |-
+        Принимает POST-запрос клиента.
+
+        Вызывает метод обработки POST-запроса, выполняет проверку на соответствие типа исполняемой операции и эндпоинта, возвращает объект Response.
+
+        Args:
+            request (Request): POST-запрос клиента.
+
+        Returns:
+            Response: ответ сервера на запрос клиента.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Transaction'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Transaction'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Transaction'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+          description: ''
+  /api/v1/users/{user_id}/balance/:
+    get:
+      operationId: v1_users_balance_retrieve
+      description: |-
+        Принимает GET-запрос клиента.
+
+        Вызывает метод получения баланса пользователя из базы данных. В случае, если в параметрах запроса передана валюта,
+        конвертирует полученное значение в эту валюту согласно кэшированной таблице курсов, предоставляемой сторонним API.
+
+        Args:
+            request (Request): GET-запрос клиента.
+            user_id (int): ID пользователя, чей баланс необходимо вернуть.
+
+        Returns:
+            Response: ответ сервера на запрос клиента.
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v1/users/{user_id}/transactions/:
+    get:
+      operationId: v1_users_transactions_list
+      description: Класс, предоставляющий пагинированный список транзакций пользователя
+        по его ID.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: path
+        name: user_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUserTransactionsListList'
+          description: ''
+components:
+  schemas:
+    OperationEnum:
+      enum:
+      - deposit
+      - withdrawal
+      - transfer
+      type: string
+      description: |-
+        * `deposit` - Зачисление
+        * `withdrawal` - Списание
+        * `transfer` - Перевод
+    PaginatedUserTransactionsListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserTransactionsList'
+    Transaction:
+      type: object
+      description: Сериализатор, обрабатывающий входные данные транзакции.
+      properties:
+        from_user_id:
+          type: integer
+        to_user_id:
+          type: integer
+        operation:
+          $ref: '#/components/schemas/OperationEnum'
+        comment:
+          type: string
+          maxLength: 1024
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+      required:
+      - amount
+      - operation
+    UserTransactionsList:
+      type: object
+      description: Сериализатор, применяемый при отображении списка транзакций пользователя.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user_id:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        from_user_id:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        to_user_id:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        balance_before:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        balance_after:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        operation:
+          $ref: '#/components/schemas/OperationEnum'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        comment:
+          type: string
+          maxLength: 1024
+      required:
+      - created_at
+      - id
+      - operation
+      - user_id
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid

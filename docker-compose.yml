@@ -1,0 +1,51 @@
+services:
+  balance-app:
+    build:
+      context: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      - DB_HOST=database
+      - DB_NAME=balance
+      - DB_USER=balance_user
+      - DB_PASS=balance_password
+      - DB_PORT=5432
+    command: >
+      sh -c "python manage.py runserver 0.0.0.0:8000"
+    depends_on:
+      - database
+
+  database:
+    image: postgres:16.9-alpine3.22
+    environment:
+      - POSTGRES_DB=balance
+      - POSTGRES_USER=balance_user
+      - POSTGRES_PASSWORD=balance_password
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:8.0.2-alpine
+    hostname: redis
+
+  celery:
+    build:
+      context: .
+    command: celery -A balance worker --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+      - balance-app
+
+  celery-beat:
+    build:
+      context: .
+    command: celery -A balance beat --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+      - balance-app
