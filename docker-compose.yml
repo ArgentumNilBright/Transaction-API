@@ -7,11 +7,11 @@ services:
     volumes:
       - .:/app
     environment:
-      - DB_HOST=database
-      - DB_NAME=balance
-      - DB_USER=balance_user
-      - DB_PASS=balance_password
-      - DB_PORT=5432
+      - DB_HOST=${DB_HOST}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_PORT=${DB_PORT}
     command: >
       sh -c "python manage.py runserver 0.0.0.0:8000"
     depends_on:
@@ -20,9 +20,9 @@ services:
   database:
     image: postgres:16.9-alpine3.22
     environment:
-      - POSTGRES_DB=balance
-      - POSTGRES_USER=balance_user
-      - POSTGRES_PASSWORD=balance_password
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
 
